@@ -1,32 +1,16 @@
 // Import required modules
 const express = require("express");
 const dotenv = require("dotenv");
+const path = require("path");
 const mongoose = require("mongoose");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const env = process.env;
 
 dotenv.config();
 
-// Swagger setup
-// const swaggerOptions = {
-//   definition: {
-//     openapi: "3.0.0",
-//     info: {
-//       title: "Learning Platform API",
-//       version: "1.0.0",
-//       description: "API documentation for the Learning Platform",
-//     },
-//     servers: [
-//       {
-//         url: `http://localhost:${PORT}`,
-//       },
-//     ],
-//   },
-//   apis: ["./routes/*.js"], // Path to the API route files
-// };
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
@@ -35,7 +19,7 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "API documentation for the Learning Platform",
     },
-    servers: [{ url: `http://localhost:${PORT}` }],
+    servers: [{ url: `http://localhost:${env.PORT}` }],
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -55,12 +39,19 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error(`Error connecting to MongoDB: ${err.message}`));
 
 // Middleware
 app.use(express.json());
+// Serve static files for uploaded videos
+app.use(
+  "/videos",
+  express.static(
+    path.join(__dirname, env.VIDEO_STORAGE_PATH || "./uploads/videos")
+  )
+);
 
 // Import routes
 const userRoutes = require("./routes/userRoutes");
@@ -80,8 +71,8 @@ app.get("/", (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(env.PORT, () => {
+  console.log(`Server running on http://localhost:${env.PORT}`);
 });
 
 /* Folder Structure:

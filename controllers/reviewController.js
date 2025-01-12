@@ -1,21 +1,3 @@
-// const Review = require("../models/reviewModel");
-
-// exports.addReview = async (req, res) => {
-//   const { id } = req.params;
-//   const { content, rating } = req.body;
-//   try {
-//     const review = await Review.create({
-//       content,
-//       rating,
-//       course: id,
-//       user: req.user.id,
-//     });
-//     res.status(201).json(review);
-//   } catch (error) {
-//     res.status(400).json({ error: "Failed to add review" });
-//   }
-// };
-
 const Review = require("../models/reviewModel");
 const Course = require("../models/courseModel");
 

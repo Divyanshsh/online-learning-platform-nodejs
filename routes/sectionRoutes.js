@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const sectionController = require("../controllers/sectionController");
 const authMiddleware = require("../middlewares/auth");
+const upload = require("../middlewares/upload");
 
 // Add a section to a course
 /**
@@ -157,6 +158,120 @@ router.delete(
   authMiddleware.checkAuth,
   authMiddleware.checkRole("author"),
   sectionController.deleteSection
+);
+
+// Upload a video and link it to a section
+/**
+ * @swagger
+ * /sections/upload-video:
+ *   post:
+ *     summary: Upload a video and link it to a section (Author only)
+ *     description: Allows authors to upload a video file and associate it with a specific section of a course.
+ *     tags:
+ *       - Sections
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               sectionId:
+ *                 type: string
+ *                 description: The ID of the section to associate the video with.
+ *               title:
+ *                 type: string
+ *                 description: Title of the video.
+ *               time:
+ *                 type: string
+ *                 description: Duration of the video (e.g., "10:25").
+ *               video:
+ *                 type: string
+ *                 format: binary
+ *                 description: The video file to upload.
+ *             required:
+ *               - sectionId
+ *               - title
+ *               - time
+ *               - video
+ *     responses:
+ *       201:
+ *         description: Video uploaded and added to the section successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Video uploaded and added to section successfully
+ *                 section:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 64b2c3f4f5a2d73468e4a002
+ *                     headline:
+ *                       type: string
+ *                       example: Introduction
+ *                     description:
+ *                       type: string
+ *                       example: Learn the basics of the course.
+ *                     videos:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           title:
+ *                             type: string
+ *                             example: Welcome Video
+ *                           time:
+ *                             type: string
+ *                             example: 10:25
+ *                           videoFilePath:
+ *                             type: string
+ *                             example: ./uploads/videos/1694346123456-welcome.mp4
+ *       400:
+ *         description: Bad request or missing required fields.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No video file uploaded
+ *       404:
+ *         description: Section not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Section not found
+ *       500:
+ *         description: Server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Server error
+ *                 error:
+ *                   type: string
+ *                   example: Some error occurred
+ */
+router.post(
+  "/upload-video",
+  authMiddleware.checkAuth,
+  authMiddleware.checkRole("author"),
+  upload.single("video"), // Use Multer for single file upload
+  sectionController.uploadVideo
 );
 
 module.exports = router;

@@ -1,133 +1,9 @@
-// const Section = require("../models/sectionModel");
-// const Course = require("../models/courseModel");
-
-// /**
-//  * Add a section with videos to a course
-//  */
-// exports.addSection = async (req, res) => {
-//   try {
-//     const { courseId, headline, description, videos } = req.body;
-
-//     // Check if the course exists
-//     const course = await Course.findById(courseId);
-//     if (!course) {
-//       return res.status(404).json({ message: "Course not found" });
-//     }
-
-//     // Validate videos array
-//     if (!Array.isArray(videos) || videos.length === 0) {
-//       return res
-//         .status(400)
-//         .json({ message: "Videos array must not be empty" });
-//     }
-
-//     // Create a new section
-//     const section = await Section.create({
-//       courseId,
-//       headline,
-//       description,
-//       videos,
-//     });
-
-//     res.status(201).json({ message: "Section added successfully", section });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
-
-// /**
-//  * Get all sections for a specific course
-//  */
-// exports.getSectionsByCourse = async (req, res) => {
-//   try {
-//     const { courseId } = req.params;
-
-//     // Find all sections for the course
-//     const sections = await Section.find({ courseId });
-//     if (!sections.length) {
-//       return res
-//         .status(404)
-//         .json({ message: "No sections found for this course" });
-//     }
-
-//     res.status(200).json({ sections });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
-
-// /**
-//  * Update a section
-//  */
-// exports.updateSection = async (req, res) => {
-//   try {
-//     const { id } = req.params; // Section ID
-//     const { headline, description, videos } = req.body;
-
-//     // Find and update the section
-//     const section = await Section.findByIdAndUpdate(
-//       id,
-//       { headline, description, videos },
-//       { new: true }
-//     );
-
-//     if (!section) {
-//       return res.status(404).json({ message: "Section not found" });
-//     }
-
-//     res.status(200).json({ message: "Section updated successfully", section });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
-
-// /**
-//  * Delete a section
-//  */
-// exports.deleteSection = async (req, res) => {
-//   try {
-//     const { id } = req.params; // Section ID
-
-//     // Find and delete the section
-//     const section = await Section.findByIdAndDelete(id);
-//     if (!section) {
-//       return res.status(404).json({ message: "Section not found" });
-//     }
-
-//     res.status(200).json({ message: "Section deleted successfully" });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
-
 const Section = require("../models/sectionModel");
 const Course = require("../models/courseModel");
 
 /**
  * Add a new section to a course
  */
-// exports.addSection = async (req, res) => {
-//   try {
-//     const { courseId, headline, description, videos } = req.body;
-
-//     // Find the course
-//     const course = await Course.findById(courseId);
-//     if (!course) {
-//       return res.status(404).json({ message: "Course not found" });
-//     }
-
-//     // Add the section
-//     const newSection = { headline, description, videos };
-//     course.sections.push(newSection);
-
-//     // Save the course with the new section
-//     await course.save();
-
-//     res.status(201).json({ message: "Section added successfully", course });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
 exports.addSection = async (req, res) => {
   try {
     const { courseId, headline, description, videos } = req.body;
@@ -167,36 +43,6 @@ exports.addSection = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-// exports.updateSection = async (req, res) => {
-//   try {
-//     const { courseId, sectionId, headline, description, videos } = req.body;
-
-//     // Find the course
-//     const course = await Course.findById(courseId);
-//     if (!course) {
-//       return res.status(404).json({ message: "Course not found" });
-//     }
-
-//     // Find the section to update
-//     const section = course.sections.id(sectionId);
-//     if (!section) {
-//       return res.status(404).json({ message: "Section not found" });
-//     }
-
-//     // Update section details
-//     section.headline = headline || section.headline;
-//     section.description = description || section.description;
-//     section.videos = videos || section.videos;
-
-//     // Save the course with the updated section
-//     await course.save();
-
-//     res.status(200).json({ message: "Section updated successfully", course });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// };
 
 /**
  * Update a section in both Course and Section collections
@@ -288,6 +134,41 @@ exports.deleteSection = async (req, res) => {
     await course.save();
 
     res.status(200).json({ message: "Section deleted successfully", course });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+/**
+ * Upload a video and associate it with a section
+ */
+exports.uploadVideo = async (req, res) => {
+  try {
+    const { sectionId, title, time } = req.body;
+
+    // Ensure file is uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: "No video file uploaded" });
+    }
+
+    const url = req.file.path; // Local file path
+
+    // Find the section and add the video
+    const section = await Section.findById(sectionId);
+    if (!section) {
+      return res.status(404).json({ message: "Section not found" });
+    }
+
+    const newVideo = { title, time, url };
+    section.videos.push(newVideo);
+
+    // Save the updated section
+    await section.save();
+
+    res.status(201).json({
+      message: "Video uploaded and added to section successfully",
+      section,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
