@@ -1,3 +1,39 @@
+// ** AWS storage for future use **
+// // Upload video and add to section
+// router.post('/upload-video', upload.single('video'), async (req, res) => {
+//     try {
+//         const { sectionId, title, time } = req.body;
+
+//         // Validate inputs
+//         if (!sectionId || !title || !time || !req.file) {
+//             return res.status(400).json({ message: 'All fields are required' });
+//         }
+
+//         // Find the section
+//         const section = await Section.findById(sectionId);
+//         if (!section) {
+//             return res.status(404).json({ message: 'Section not found' });
+//         }
+
+//         // Add the video to the section
+//         const video = {
+//             title,
+//             time,
+//             url: req.file.location, // AWS S3 URL
+//         };
+//         section.videos.push(video);
+//         await section.save();
+
+//         res.status(201).json({ message: 'Video uploaded and added to section successfully', section });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Server error', error: error.message });
+//     }
+// });
+
+// module.exports = router;
+// ** AWS storage for future use **
+
 const express = require("express");
 const router = express.Router();
 const sectionController = require("../controllers/sectionController");

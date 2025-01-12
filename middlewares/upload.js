@@ -1,3 +1,40 @@
+// ** AWS storage for future use **
+// const AWS = require('aws-sdk');
+// const multer = require('multer');
+// const multerS3 = require('multer-s3');
+
+// // AWS S3 configuration
+// const s3 = new AWS.S3({
+//     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//     region: process.env.AWS_REGION,
+// });
+
+// // Multer configuration for S3
+// const upload = multer({
+//     storage: multerS3({
+//         s3: s3,
+//         bucket: process.env.S3_BUCKET_NAME,
+//         acl: 'public-read', // Set access control (e.g., public-read)
+//         key: (req, file, cb) => {
+//             const uniqueName = `${Date.now()}-${file.originalname}`;
+//             cb(null, `videos/${uniqueName}`); // Save files in the 'videos/' folder
+//         },
+//     }),
+//     limits: { fileSize: 500 * 1024 * 1024 }, // Limit file size to 500MB
+//     fileFilter: (req, file, cb) => {
+//         const ext = file.mimetype.split('/')[1];
+//         if (['mp4', 'mov', 'avi'].includes(ext)) {
+//             cb(null, true);
+//         } else {
+//             cb(new Error('Only video files are allowed!'), false);
+//         }
+//     },
+// });
+
+// module.exports = upload;
+// ** AWS storage for future use **
+
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
