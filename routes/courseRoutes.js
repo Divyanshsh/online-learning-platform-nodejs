@@ -5,8 +5,12 @@ const {
   createCourse,
   updateCourse,
   deleteCourse,
+  getCourseById,
+  enrollInCourse,
+  getEnrolledCourses,
 } = require("../controllers/courseController");
 const { checkAuth, checkRole } = require("../middlewares/auth");
+const { checkEnrollment } = require("../middlewares/enrollmentCheck");
 
 // Create a course
 /**
@@ -133,9 +137,70 @@ const { checkAuth, checkRole } = require("../middlewares/auth");
  *       404:
  *         description: Course not found
  */
-router.get("/", getCourses);
+
+// enroll course
+/**
+ * @swagger
+ * /courses/{id}/enroll:
+ *   post:
+ *     summary: Enroll a learner in a course
+ *     description: Learners must enroll in a course before accessing its content.
+ *     tags: [Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the course to enroll in
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully enrolled in the course
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Enrolled successfully"
+ *       400:
+ *         description: Already enrolled
+ *       403:
+ *         description: Access denied
+ *       404:
+ *         description: Course not found
+ *       500:
+ *         description: Enrollment failed
+ */
+
+// get enrolled courses
+/**
+ * @swagger
+ * /courses/enrolled:
+ *   get:
+ *     summary: Get all enrolled courses of the learner
+ *     description: Fetches a list of courses that the learner has enrolled in.
+ *     tags: [Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of enrolled courses
+ *       403:
+ *         description: Access denied
+ *       500:
+ *         description: Failed to retrieve courses
+ */
+
+router.get("/", checkAuth, getCourses);
+router.get("/:id", checkAuth, getCourseById);
 router.post("/", checkAuth, checkRole("author"), createCourse);
 router.put("/:id", checkAuth, checkRole("author"), updateCourse);
 router.delete("/:id", checkAuth, checkRole("author"), deleteCourse);
+router.get("/enrolled", checkAuth, checkRole("learner"), getEnrolledCourses);
+router.post("/:id/enroll", checkAuth, checkRole("learner"), enrollInCourse);
 
 module.exports = router;

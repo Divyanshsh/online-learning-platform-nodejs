@@ -89,3 +89,29 @@ exports.deleteReview = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+/**
+ * get course reviews review
+ */
+exports.getCourseReviews = async (req, res) => {
+  const { id } = req.params;
+  const { page = 1, limit = 5 } = req.query; // Default: page 1, 5 reviews per page
+
+  try {
+    const reviews = await Review.find({ course: id })
+      .populate()
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+
+    const totalReviews = await Review.countDocuments({ course: id });
+
+    res.json({
+      totalPages: Math.ceil(totalReviews / limit),
+      currentPage: Number(page),
+      reviews,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve reviews" });
+  }
+};

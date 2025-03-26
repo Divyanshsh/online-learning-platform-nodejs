@@ -25,6 +25,13 @@ const courseSchema = new mongoose.Schema(
       required: true,
     },
     sections: [sectionSchema], // Embed section schema directly
+    enrolledLearners: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        name: String,
+        email: String,
+      },
+    ],
   },
   { timestamps: true }
 );

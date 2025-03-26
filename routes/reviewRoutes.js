@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const reviewController = require("../controllers/reviewController");
-const authMiddleware = require("../middlewares/auth");
+const { checkAuth, checkRole } = require("../middlewares/auth");
 
 // Add a review
 /**
@@ -36,12 +36,7 @@ const authMiddleware = require("../middlewares/auth");
  *       404:
  *         description: Course not found
  */
-router.post(
-  "/",
-  authMiddleware.checkAuth,
-  authMiddleware.checkRole("learner"),
-  reviewController.addReview
-);
+router.post("/", checkAuth, checkRole("learner"), reviewController.addReview);
 
 // Update a review
 /**
@@ -81,8 +76,8 @@ router.post(
  */
 router.put(
   "/:id",
-  authMiddleware.checkAuth,
-  authMiddleware.checkRole("learner"),
+  checkAuth,
+  checkRole("learner"),
   reviewController.updateReview
 );
 
@@ -111,9 +106,10 @@ router.put(
  */
 router.delete(
   "/:id",
-  authMiddleware.checkAuth,
-  authMiddleware.checkRole("learner"),
+  checkAuth,
+  checkRole("learner"),
   reviewController.deleteReview
 );
+router.get("/:id", checkAuth, reviewController.getCourseReviews);
 
 module.exports = router;
